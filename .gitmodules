@@ -1,0 +1,4 @@
+[submodule "openmc-derivative-testing"]
+	path = openmc-derivative-testing
+	url = https://github.com/sumaddury/openmc-derivative-testing.git
+	branch = main
