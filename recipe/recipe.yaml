@@ -1,0 +1,83 @@
+# conda recipe: OpenMC "diff-geom" branch (geometric derivatives), built as a
+# real conda package. Adapted from conda-forge/openmc-feedstock (recipe.yaml),
+# minus the DAGMC and MPI variants this project does not use.
+#
+# To change the OpenMC version used: edit `commit` below, nothing else.
+schema_version: 1
+
+context:
+  repo: https://github.com/pshriwise/openmc.git      # branch: diff-geom
+  commit: 76643859c4bf2e316cc41e9840a7f2998277642b
+  version: "0.16.1.dev0"
+  build_number: 0
+
+package:
+  name: openmc-diffgeom
+  version: ${{ version }}
+
+source:
+  git: ${{ repo }}
+  rev: ${{ commit }}
+
+build:
+  number: ${{ build_number }}
+  string: py${{ python | version_to_buildstring }}_g${{ commit[:9] }}_${{ build_number }}
+  skip:
+    - win
+  script:
+    file: build.sh
+    env:
+      OPENMC_COMMIT: ${{ commit }}
+      OPENMC_VERSION: ${{ version }}
+
+requirements:
+  build:
+    - ${{ compiler("c") }}
+    - ${{ compiler("cxx") }}
+    - ${{ stdlib("c") }}
+    - cmake
+    - make
+    - pkg-config
+    - git
+    - if: linux
+      then: libgomp
+  host:
+    - python
+    - pip
+    - setuptools
+    - setuptools_scm
+    - numpy
+    - fmt
+    - pugixml
+    - libpng
+    - hdf5 * nompi_*
+    - h5py * nompi_*
+    - if: osx
+      then: llvm-openmp
+  run:
+    - python
+    - hdf5 * nompi_*
+    - h5py * nompi_*
+    - libpng
+    - numpy
+    - scipy
+    - pandas
+    - matplotlib-base
+    - lxml
+    - endf
+    - uncertainties
+    - ipython
+
+tests:
+  - python:
+      imports:
+        - openmc
+        - openmc.lib
+  - script:
+      - openmc --version
+      - python -c "import openmc; openmc.GeometricDerivative"
+
+about:
+  homepage: https://github.com/pshriwise/openmc
+  summary: OpenMC with geometric (surface-coefficient) derivatives, branch diff-geom
+  license: MIT

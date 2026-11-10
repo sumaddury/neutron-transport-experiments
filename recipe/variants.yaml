@@ -1,0 +1,6 @@
+# Python version(s) to build for. is_python_min is zipped with python in the
+# conda-forge pinning file, so both must be given together.
+python:
+  - "3.12.* *_cpython"
+is_python_min:
+  - false

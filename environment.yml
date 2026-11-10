@@ -1,0 +1,19 @@
+# Runtime environment for the derivative experiments.
+#   conda env create -f environment.yml
+# `openmc-diffgeom` comes from ./channel, which `rattler-build` fills from
+# recipe/ (see README.md). Everything else is from conda-forge.
+name: openmc-diffgeom
+channels:
+  - ./channel
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - openmc-diffgeom
+  # pins taken from openmc-derivative-testing/pyproject.toml
+  - numpy>=1.24,<2.3
+  - scipy=1.15               # basinhopping(rng=...) needs 1.15; pyproject caps at 1.15
+  - matplotlib>=3.7
+  - pillow>=10
+  - ffmpeg                   # MP4 animations
+  - pytest

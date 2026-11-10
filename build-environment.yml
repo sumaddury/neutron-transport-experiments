@@ -1,0 +1,8 @@
+# Tools needed to *build* the openmc-diffgeom package (not needed to use it).
+name: openmc-build
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - rattler-build
+  - conda-forge-pinning      # compiler / library versions used by conda-forge
