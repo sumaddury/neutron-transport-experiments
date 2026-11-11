@@ -14,3 +14,12 @@ conda activate openmc-diffgeom
 2. `conda env create -f environment.yml` creates the env `openmc-diffgeom`
 3. `scripts/fetch_data.sh` downloads cross sections into `./data` and stores
    `OPENMC_CROSS_SECTIONS` in the env
+
+## Log
+
+- Added `transport_options` parameter that sets batch size and batch number
+- Added arguments in `optimizer.__main__` for batch size and number
+- Added flag `--no-trigger` to toggle the relative-error trigger, if exact batch number control is needed
+- Added the above to evaluation metadata
+- Added seeding controls for `openmc` randomness
+-
