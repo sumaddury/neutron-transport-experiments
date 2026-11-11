@@ -22,4 +22,4 @@ conda activate openmc-diffgeom
 - Added flag `--no-trigger` to toggle the relative-error trigger, if exact batch number control is needed
 - Added the above to evaluation metadata
 - Added seeding controls for `openmc` randomness
--
+- Added batch trace script to get per-batch means
