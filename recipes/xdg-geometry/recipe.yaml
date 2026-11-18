@@ -1,0 +1,65 @@
+# conda recipe: XDG, the mesh-geometry ray-tracing library that OpenMC uses
+# for XDGUniverse (triangle-mesh geometry, needed by surface_mesh). Built
+# with the MOAB backend and Embree ray tracing; libMesh, GPRT and MPI are off.
+# Named `xdg-geometry` because conda-forge's `xdg` is an unrelated package.
+#
+# The commit was main on 2026-10-25, i.e. what openmc-diffgeom's CI (which
+# clones xdg main) built against when diff-geom was last updated (2026-10-30).
+schema_version: 1
+
+context:
+  repo: https://github.com/xdg-org/xdg.git
+  commit: 83efb306e152e8bcf998140b0fc5f207f51dcc2c
+  version: "0.14.1"                # XDG's own CMake version at this commit (no git tags)
+  build_number: 1
+
+package:
+  name: xdg-geometry
+  version: ${{ version }}
+
+source:
+  git: ${{ repo }}
+  rev: ${{ commit }}
+  patches:
+    # vec3da.h includes x86 SIMD headers unconditionally but only uses them
+    # under __AVX2__; guard the includes so arm64 (Apple silicon) compiles.
+    - patches/0001-vec3da-x86-intrinsics-only.patch
+
+build:
+  number: ${{ build_number }}
+  string: g${{ commit[:9] }}_${{ build_number }}
+  skip:
+    - win
+  script:
+    file: build.sh
+
+requirements:
+  build:
+    - ${{ compiler("c") }}
+    - ${{ compiler("cxx") }}
+    - ${{ stdlib("c") }}
+    - cmake
+    - make
+    - git
+    - if: linux
+      then: libgomp
+  host:
+    - moab-pymoab
+    - eigen >=3.4,<4         # MOAB headers include Eigen (build-time only)
+    - embree
+    - fmt
+    - if: osx
+      then: llvm-openmp
+  run:
+    - moab-pymoab
+    - embree
+
+tests:
+  - script:
+      - test -f $PREFIX/lib/cmake/xdg/XDGConfig.cmake
+      - test -f $PREFIX/include/xdg/xdg.h
+
+about:
+  homepage: https://github.com/xdg-org/xdg
+  summary: Accelerated discretized geometry (mesh-based ray tracing) for Monte Carlo transport
+  license: MIT

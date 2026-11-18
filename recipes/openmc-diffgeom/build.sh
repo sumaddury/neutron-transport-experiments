@@ -16,6 +16,7 @@ cmake ${CMAKE_ARGS} \
       -DCMAKE_BUILD_TYPE=Release \
       -DHDF5_ROOT="${PREFIX}" \
       -DOPENMC_USE_OPENMP=ON \
+      -DOPENMC_USE_XDG=ON -DXDG_DIR="${PREFIX}/lib/cmake/xdg" \
       -DOPENMC_BUILD_TESTS=OFF
 cmake --build build_cmake --parallel "${CPU_COUNT}"
 cmake --install build_cmake

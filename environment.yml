@@ -1,7 +1,9 @@
-# Runtime environment for the derivative experiments.
+# Runtime environment for the derivative experiments (root CSG scripts and
+# surface_mesh/).
 #   conda env create -f environment.yml
-# `openmc-diffgeom` comes from ./channel, which `rattler-build` fills from
-# recipe/ (see README.md). Everything else is from conda-forge.
+# `openmc-diffgeom` (with its XDG and MOAB/pymoab dependencies) comes from
+# ./channel, which `rattler-build` fills from recipes/ (see README.md).
+# Everything else is from conda-forge, except the pip block at the end.
 name: openmc-diffgeom
 channels:
   - ./channel
@@ -9,11 +11,30 @@ channels:
   - nodefaults
 dependencies:
   - python=3.12
-  - openmc-diffgeom
+  # Pulls xdg-geometry and moab-pymoab (pymoab) from ./channel. The floor makes
+  # a dependency conflict fail loudly instead of silently installing an older
+  # (pre-XDG) build left in ./channel; keep it equal to recipes/openmc-diffgeom.
+  - openmc-diffgeom>=0.16.1.dev20261030
   # pins taken from openmc-derivative-testing/pyproject.toml
   - numpy>=1.24,<2.3
-  - scipy=1.15               # basinhopping(rng=...) needs 1.15; pyproject caps at 1.15
+  - scipy=1.15.0             # basinhopping(rng=...) needs 1.15; gpytoolbox 0.3.7 needs <=1.15(.0)
   - matplotlib>=3.7
   - pillow>=10
+  - h5py>=3
   - ffmpeg                   # MP4 animations
   - pytest
+  - ipykernel                # Jupyter kernel for the notebooks (e.g. batch-size-experiments.ipynb)
+  # surface_mesh extras (pyproject [visualization]) and gpytoolbox's own deps
+  - pyvista>=0.44            # also provides `vtk` (VTK output tests, mesh-motion plots)
+  - scikit-image
+  - scs
+  - pip
+  - pip:
+      # Pins from pyproject.toml / surface_mesh/requirements-tested.txt.
+      - gpytoolbox==0.3.7      # remeshing (pyproject [remesh]); conda-forge's 0.3.7 needs scipy<1.14
+      # Not on conda-forge:
+      - mitsuba==3.9.1         # LargeSteps + Adam (requires drjit==1.5.0)
+      - drjit==1.5.0
+      - cholespy==2.2.0        # sparse Cholesky behind LargeSteps
+      - ipctk>=1.6,<2          # self-intersection checks (pyproject [collision])
+      - pydagmc==0.0.1         # DAGMC metadata checks on .h5m files (uses pymoab)

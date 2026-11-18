@@ -1,15 +1,18 @@
 # conda recipe: OpenMC "diff-geom" branch (geometric derivatives), built as a
 # real conda package. Adapted from conda-forge/openmc-feedstock (recipe.yaml),
-# minus the DAGMC and MPI variants this project does not use.
+# minus the DAGMC and MPI variants this project does not use. Built with XDG
+# (mesh geometry, from ../xdg-geometry) for surface_mesh's vertex derivatives.
 #
-# To change the OpenMC version used: edit `commit` below, nothing else.
+# To change the OpenMC version used: edit `commit` below, and set the
+# `.devYYYYMMDD` part of `version` to that commit's date. Builds of different
+# commits otherwise share one version, and conda may install the older one.
 schema_version: 1
 
 context:
   repo: https://github.com/pshriwise/openmc.git      # branch: diff-geom
-  commit: 76643859c4bf2e316cc41e9840a7f2998277642b
-  version: "0.16.1.dev0"
-  build_number: 0
+  commit: 823d609ffad148bc3d07336d2176afb42a00524a   # diff-geom head, 2026-10-30
+  version: "0.16.1.dev20261030"
+  build_number: 1
 
 package:
   name: openmc-diffgeom
@@ -52,10 +55,13 @@ requirements:
     - libpng
     - hdf5 * nompi_*
     - h5py * nompi_*
+    - xdg-geometry
+    - eigen >=3.4,<4         # MOAB headers (via XDG) include Eigen (build-time only)
     - if: osx
       then: llvm-openmp
   run:
     - python
+    - xdg-geometry
     - hdf5 * nompi_*
     - h5py * nompi_*
     - libpng
@@ -76,6 +82,7 @@ tests:
   - script:
       - openmc --version
       - python -c "import openmc; openmc.GeometricDerivative"
+      - python -c "import openmc.lib; assert openmc.lib.feature_enabled('xdg')"
 
 about:
   homepage: https://github.com/pshriwise/openmc

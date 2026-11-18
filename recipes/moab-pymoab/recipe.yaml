@@ -1,0 +1,66 @@
+# conda recipe: MOAB C++ library (with HDF5) plus its Python bindings, pymoab.
+# conda-forge's `moab` is built without pymoab, and pymoab is not on PyPI, so
+# both come from this one package. Named `moab-pymoab` so that conda-forge's
+# `moab` can never be picked in its place.
+#
+# Needed by: xdg-geometry (C++ MOAB) and surface_mesh (pymoab for .h5m I/O).
+schema_version: 1
+
+context:
+  repo: https://bitbucket.org/fathomteam/moab.git
+  tag: "5.6.0"                    # the release tarball lacks the pymoab build files
+  version: "5.6.0"
+  build_number: 2
+
+package:
+  name: moab-pymoab
+  version: ${{ version }}
+
+source:
+  git: ${{ repo }}
+  tag: ${{ tag }}
+
+build:
+  number: ${{ build_number }}
+  skip:
+    - win
+  script:
+    file: build.sh
+
+requirements:
+  build:
+    - ${{ compiler("c") }}
+    - ${{ compiler("cxx") }}
+    - ${{ stdlib("c") }}
+    - cmake
+    - make
+  host:
+    - python
+    - pip
+    - setuptools
+    - cython
+    - numpy
+    - hdf5 * nompi_*
+    # Header-only. MOAB's public headers (Matrix3.hpp) include Eigen, so
+    # packages compiling against MOAB (xdg-geometry, openmc-diffgeom) list it
+    # in their host requirements too. It is deliberately NOT a run
+    # requirement: VTK (via pyvista) rules out Eigen 3 in the runtime env.
+    - eigen >=3.4,<4
+  run:
+    - python
+    - numpy
+    - hdf5 * nompi_*
+
+tests:
+  - python:
+      imports:
+        - pymoab
+        - pymoab.core
+  - script:
+      - test -f $PREFIX/lib/cmake/MOAB/MOABConfig.cmake
+      - python -c "from pymoab import core; core.Core()"
+
+about:
+  homepage: https://sigma.mcs.anl.gov/moab-library/
+  summary: MOAB mesh database with HDF5 support and the pymoab Python bindings
+  license: LGPL-3.0-or-later

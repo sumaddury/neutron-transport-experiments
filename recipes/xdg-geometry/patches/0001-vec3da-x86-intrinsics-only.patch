@@ -1,0 +1,15 @@
+diff --git a/include/xdg/vec3da.h b/include/xdg/vec3da.h
+index 2561de2..c88562f 100644
+--- a/include/xdg/vec3da.h
++++ b/include/xdg/vec3da.h
+@@ -6,8 +6,10 @@
+ #include <assert.h>
+ #include <iostream>
+ #include <math.h>
++#if defined(__x86_64__) || defined(__i386__)  // only used under __AVX2__ below
+ #include <immintrin.h>
+ #include <xmmintrin.h>
++#endif
+ #include <limits>
+ #include <vector>
+ 
